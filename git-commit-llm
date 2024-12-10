@@ -100,7 +100,7 @@ SHOW_DIFF=0
 DEBUG=0
 
 # Parse short options first
-while getopts "hsmo:pd" opt; do
+while getopts ":hsmo:pdD" opt; do
     case $opt in
         h)
             help_text
@@ -120,6 +120,9 @@ while getopts "hsmo:pd" opt; do
             ;;
         d)
             SHOW_DIFF=1
+            ;;
+        D)
+            DEBUG=1
             ;;
         \?)
             # Skip invalid options - might be a long option
@@ -161,10 +164,6 @@ while [[ $# -gt 0 ]]; do
             ;;
         --diff)
             SHOW_DIFF=1
-            shift
-            ;;
-        --debug)
-            DEBUG=1
             shift
             ;;
         *)
@@ -213,7 +212,7 @@ else
     PROMPT=$(printf "$SIMPLE_PROMPT" "$BRANCH_NAME")
 fi
 
-# Get the diff
+# Get the diff.
 DIFF=$(git diff --cached)
 
 if [ $DEBUG -eq 1 ]; then
