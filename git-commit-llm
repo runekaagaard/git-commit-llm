@@ -16,6 +16,9 @@ Requirements:
 Context:
 - Current branch: %s
 
+Git diff output:
+%s
+
 Response:
 - Format your response as a single line with no prefix or quotes.'
 
@@ -41,6 +44,9 @@ Requirements:
 
 Context:
 - Current branch: %s
+
+Git diff output:
+%s
 
 Response:
 - Format your response starting directly with the subject line, no quotes or prefixes.'
@@ -238,11 +244,14 @@ BRANCH_NAME=$(git symbolic-ref --short HEAD 2>/dev/null || echo "detached HEAD")
 # Create temporary file
 TEMP_FILE=$(mktemp /tmp/git-commit-llm.XXXXXX) || error "Failed to create temporary file" 7
 
+# Get the diff
+DIFF=$(git diff --cached)
+
 # Format prompt based on commit type
 if [ $MAJOR -eq 1 ]; then
-    PROMPT=$(printf "$MAJOR_PROMPT" "$BRANCH_NAME")
+    PROMPT=$(printf "$MAJOR_PROMPT" "$BRANCH_NAME" "$DIFF")
 else
-    PROMPT=$(printf "$SIMPLE_PROMPT" "$BRANCH_NAME")
+    PROMPT=$(printf "$SIMPLE_PROMPT" "$BRANCH_NAME" "$DIFF")
 fi
 
 if [ $DEBUG -eq 1 ]; then
@@ -253,11 +262,8 @@ if [ $DEBUG -eq 1 ]; then
     exit 0
 fi
 
-# Get the diff.
-DIFF=$(git diff --cached)
-
 echo "Generating commit message using LLM (this may take a few seconds)..."
-if ! echo "$DIFF" | llm --model="$MODEL" "$PROMPT" > "$TEMP_FILE" 2>/dev/null; then
+if ! llm --model="$MODEL" "$PROMPT" > "$TEMP_FILE" 2>/dev/null; then
     error "Failed to generate commit message using LLM" 3
 fi
 
