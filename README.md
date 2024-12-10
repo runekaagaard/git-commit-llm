@@ -77,6 +77,8 @@ git-commit-llm --major
 -a, --add-all    Stage all changes before generating commit message
 -m, --major      Generate a detailed multi-line commit message
 --model MODEL    Select LLM model (default: claude-3-sonnet-20240229)
+--push          Push changes after committing
+--diff          Display staged changes before generating commit message
 ```
 
 ### Workflow

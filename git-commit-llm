@@ -23,6 +23,8 @@ OPTIONS:
     -a, --add-all    Stage all changes (including untracked files) before generating commit message
     -m, --major      Generate a detailed multi-line commit message for substantial changes
     --model MODEL    Select LLM model (default: claude-3-sonnet-20240229)
+    --push          Push changes after committing
+    --diff          Display staged changes before generating commit message
 
 DESCRIPTION:
     This script uses Claude AI to analyze your git changes and generate an appropriate
@@ -92,6 +94,8 @@ fi
 ADD_ALL=0
 MAJOR=0
 MODEL="claude-3-sonnet-20240229"
+PUSH=0
+SHOW_DIFF=0
 while [[ $# -gt 0 ]]; do
     case $1 in
         -h|--help)
@@ -112,6 +116,14 @@ while [[ $# -gt 0 ]]; do
                 error "Model name required for --model option" 8
             fi
             MODEL="$1"
+            shift
+            ;;
+        --push)
+            PUSH=1
+            shift
+            ;;
+        --diff)
+            SHOW_DIFF=1
             shift
             ;;
         *)
@@ -138,6 +150,13 @@ fi
 # Check if there are any changes to commit
 if git diff --cached --quiet; then
     error "No changes staged for commit" 1
+fi
+
+# Show diff if requested
+if [ $SHOW_DIFF -eq 1 ]; then
+    git diff --cached
+    echo -e "\nPress Enter to continue or Ctrl+C to abort..."
+    read -r
 fi
 
 # Get current branch name
@@ -181,6 +200,13 @@ if ! git commit -F "$TEMP_FILE"; then
     error "Failed to create commit" 5
 fi
 
-# Success!
-echo "Successfully created commit"
+# Push if requested
+if [ $PUSH -eq 1 ]; then
+    if ! git push; then
+        error "Failed to push changes" 9
+    fi
+    echo "Successfully created commit and pushed changes"
+else
+    echo "Successfully created commit"
+fi
 exit 0
