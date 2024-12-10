@@ -31,7 +31,7 @@ Basic usage:
 git-commit-llm
 
 # Stage all changes and generate message
-git-commit-llm --add-all
+git-commit-llm --stage-all
 
 # Generate detailed message for major changes
 git-commit-llm --major
@@ -40,10 +40,10 @@ git-commit-llm --major
 Available options:
 ```
 -h, --help       Show help message
--a, --add-all    Stage all changes first
+-s, --stage-all  Stage all changes first
 -m, --major      Generate detailed multi-line message
---model MODEL    Select LLM model (default: claude-3-sonnet-20240229)
---push           Push changes after committing
+-o, --model MODEL    Select LLM model (default: claude-3-sonnet-20240229)
+-p, --push           Push changes after committing
 --diff           Show staged changes first
 ```
 

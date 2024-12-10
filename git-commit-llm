@@ -20,10 +20,10 @@ USAGE:
 
 OPTIONS:
     -h, --help       Show this help message
-    -a, --add-all    Stage all changes (including untracked files) before generating commit message
+    -s, --stage-all  Stage all changes (including untracked files) before generating commit message
     -m, --major      Generate a detailed multi-line commit message for substantial changes
-    --model MODEL    Select LLM model (default: claude-3-sonnet-20240229)
-    --push          Push changes after committing
+    -o, --model MODEL    Select LLM model (default: claude-3-sonnet-20240229)
+    -p, --push          Push changes after committing
     --diff          Display staged changes before generating commit message
 
 DESCRIPTION:
@@ -102,7 +102,7 @@ while [[ $# -gt 0 ]]; do
             help_text
             exit 0
             ;;
-        -a|--add-all)
+        -s|--stage-all)
             ADD_ALL=1
             shift
             ;;
@@ -110,7 +110,7 @@ while [[ $# -gt 0 ]]; do
             MAJOR=1
             shift
             ;;
-        --model)
+        -o|--model)
             shift
             if [ -z "$1" ]; then
                 error "Model name required for --model option" 8
@@ -118,7 +118,7 @@ while [[ $# -gt 0 ]]; do
             MODEL="$1"
             shift
             ;;
-        --push)
+        -p|--push)
             PUSH=1
             shift
             ;;
