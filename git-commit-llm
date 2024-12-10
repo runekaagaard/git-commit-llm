@@ -172,6 +172,7 @@ else
     PROMPT=$(printf "$SIMPLE_PROMPT" "$BRANCH_NAME")
 fi
 
+echo "Generating commit message using LLM (this may take a few seconds)..."
 if ! git diff --cached | llm --model="$MODEL" "$PROMPT" > "$TEMP_FILE" 2>/dev/null; then
     error "Failed to generate commit message using LLM" 3
 fi
