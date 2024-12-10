@@ -24,7 +24,7 @@ OPTIONS:
     -m, --major      Generate a detailed multi-line commit message for substantial changes
     -o, --model MODEL    Select LLM model (default: claude-3-sonnet-20240229)
     -p, --push          Push changes after committing
-    --diff          Display staged changes before generating commit message
+    -d, --diff      Display staged changes before generating commit message
 
 DESCRIPTION:
     This script uses Claude AI to analyze your git changes and generate an appropriate
@@ -122,7 +122,7 @@ while [[ $# -gt 0 ]]; do
             PUSH=1
             shift
             ;;
-        --diff)
+        -d|--diff)
             SHOW_DIFF=1
             shift
             ;;

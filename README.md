@@ -44,7 +44,7 @@ Available options:
 -m, --major      Generate detailed multi-line message
 -o, --model MODEL    Select LLM model (default: claude-3-sonnet-20240229)
 -p, --push           Push changes after committing
---diff           Show staged changes first
+-d, --diff       Show staged changes first
 ```
 
 ## How it works
