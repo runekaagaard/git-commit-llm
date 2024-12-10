@@ -138,16 +138,30 @@ BRANCH_NAME=$(git symbolic-ref --short HEAD 2>/dev/null || echo "detached HEAD")
 TEMP_FILE=$(mktemp /tmp/git-commit-llm.XXXXXX) || error "Failed to create temporary file" 7
 
 # Generate commit message using Claude
-PROMPT="Analyze this git diff and write a commit message following these rules:
-1. First line: concise summary in imperative mood (max 50 chars)
-2. If changes are minor, stop after the first line
-3. If changes are substantial:
-   - Add a blank line
-   - Add detailed explanation with line breaks at 72 chars
-4. Context: This change is on branch: $BRANCH_NAME
+PROMPT="Analyze this git diff and generate a git commit message. Use one of these two formats:
 
-Focus on the 'what' and 'why' rather than the 'how'. Break convention only if it 
-significantly improves clarity."
+FOR TRIVIAL CHANGES (e.g. typo fixes, small refactors, simple updates):
+- Single line summary only
+- Use imperative mood
+- Maximum 50 characters
+- Example: 'Fix typo in login error message'
+
+FOR SUBSTANTIAL CHANGES (e.g. new features, breaking changes, complex refactors):
+- First line: summary in imperative mood (max 50 chars)
+- Blank line
+- Detailed explanation with line breaks at 72 chars
+- Example:
+  Add user authentication system
+  
+  Implement JWT-based authentication with the following features:
+  - Email/password login endpoint
+  - Token refresh mechanism
+  - Password reset flow
+  - Rate limiting on auth endpoints
+
+Context: This change is on branch: $BRANCH_NAME
+
+IMPORTANT: Choose format based on change complexity - prefer single line for simple changes."
 
 if ! git diff --cached | llm --model=claude-3-5-sonnet-20241022 "$PROMPT" > "$TEMP_FILE" 2>/dev/null; then
     error "Failed to generate commit message using LLM" 3
