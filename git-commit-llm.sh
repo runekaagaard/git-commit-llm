@@ -4,7 +4,73 @@ set -o pipefail
 
 help_text() {
     cat << EOF
-[Previous help text remains the same...]
+git-commit-llm - Generate commit messages using Claude AI
+
+USAGE:
+    git-commit-llm [OPTIONS]
+
+OPTIONS:
+    -h, --help      Show this help message
+    -a, --add-all   Stage all changes (including untracked files) before generating commit message
+                    Similar to 'git add -A'
+
+DESCRIPTION:
+    This script uses Claude AI to analyze your git changes and generate an appropriate
+    commit message following standard Git commit message conventions.
+
+WORKFLOW:
+    1. Changes are analyzed and sent to Claude AI
+    2. Generated commit message is saved to a temporary file
+    3. Your \$EDITOR opens with the suggested message
+    4. If you save and exit, the commit is created
+    5. If you exit without saving (Ctrl+C), the commit is aborted
+
+PROMPT:
+    "Analyze this git diff and write a commit message following these rules:
+    1. First line: concise summary in imperative mood (max 50 chars)
+    2. If changes are minor, stop after the first line
+    3. If changes are substantial:
+       - Add a blank line
+       - Add detailed explanation with line breaks at 72 chars
+    4. Context: This change is on branch: [BRANCH_NAME]
+
+    Focus on the 'what' and 'why' rather than the 'how'. Break convention only if it 
+    significantly improves clarity."
+
+EXIT CODES:
+    0   Success - commit was created
+    1   No changes to commit (working directory clean)
+    2   Not in a git repository
+    3   LLM command failed or returned error
+    4   User aborted commit (editor closed without saving)
+    5   Git commit command failed
+    6   \$EDITOR not set
+    7   Failed to create or write temporary file
+    8   Invalid command line arguments
+    10  Unexpected error
+
+ERROR HANDLING:
+    - The script checks for a valid git repository before proceeding
+    - Verifies changes exist before attempting to generate a commit
+    - Validates \$EDITOR is set and executable
+    - Ensures the LLM tool is available and properly configured
+    - Handles API failures gracefully with informative error messages
+    - Cleans up temporary files even if the script fails
+    - Preserves git state if any step fails (no partial commits)
+
+EXAMPLES:
+    # Generate commit message for staged changes:
+    git-commit-llm
+
+    # Stage all changes and generate commit message:
+    git-commit-llm --add-all
+
+REQUIREMENTS:
+    - llm command-line tool
+    - git
+    - Active git repository
+    - \$EDITOR environment variable set
+
 EOF
 }
 
@@ -93,13 +159,11 @@ if [ ! -s "$TEMP_FILE" ]; then
 fi
 
 # Open editor for user to review/modify
-if ! $EDITOR "$TEMP_FILE"; then
-    error "Editor closed without saving" 4
-fi
+$EDITOR "$TEMP_FILE" || error "Editor closed with an error" 4
 
-# Check if file was modified and saved
-if [ ! -s "$TEMP_FILE" ]; then
-    error "Empty commit message, aborting" 4
+# Check if file is empty or only contains comments
+if [ ! -s "$TEMP_FILE" ] || ! grep -q '^[^#]' "$TEMP_FILE"; then
+    error "Commit message empty or only contains comments, aborting" 4
 fi
 
 # Create the commit
