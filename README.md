@@ -48,9 +48,10 @@ git-commit-llm --major
 
 ### Options
 ```
--h, --help      Show help message
--a, --add-all   Stage all changes before generating commit message
--m, --major     Generate a detailed multi-line commit message
+-h, --help       Show help message
+-a, --add-all    Stage all changes before generating commit message
+-m, --major      Generate a detailed multi-line commit message
+--model MODEL    Select LLM model (default: claude-3-sonnet-20240229)
 ```
 
 ### Workflow
