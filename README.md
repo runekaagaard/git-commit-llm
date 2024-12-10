@@ -39,12 +39,12 @@ git-commit-llm --major
 
 Available options:
 ```
--h, --help       Show help message
--s, --stage-all  Stage all changes first
--m, --major      Generate detailed multi-line message
--o, --model MODEL    Select LLM model (default: claude-3-sonnet-20240229)
--p, --push           Push changes after committing
--d, --diff       Show staged changes first
+-h, --help          Show help message
+-s, --stage-all     Stage all changes first
+-m, --major         Generate detailed multi-line message
+-o, --model MODEL   Select LLM model (default: claude-3-sonnet-20240229)
+-p, --push          Push changes after committing
+-d, --diff          Show staged changes first
 ```
 
 ## How it works
