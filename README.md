@@ -1,6 +1,6 @@
 # git-commit-llm
 
-Generate git commit messages using Claude AI to analyze your changes. Creates concise, consistent commit messages following git best practices.
+Generate git commit messages using Large Language Models to analyze your changes. Creates concise, consistent commit messages following git best practices.
 
 ## Features
 
