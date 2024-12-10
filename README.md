@@ -21,10 +21,35 @@ Generate git commit messages using Large Language Models to analyze your changes
 ## Requirements
 
 - git
-- The `llm` command-line tool with Claude access
 - A text editor set in `$EDITOR`
+- Python 3.7+
 
 ## Installation
+
+First install pipx:
+
+```bash
+# On Ubuntu/Debian
+sudo apt update && sudo apt install pipx
+pipx ensurepath
+
+# On macOS
+brew install pipx
+pipx ensurepath
+
+# On other systems with pip
+python3 -m pip install --user pipx
+python3 -m pipx ensurepath
+```
+
+Then install the llm CLI tool and Claude plugin:
+
+```bash
+pipx install llm
+pipx inject llm llm-claude-3
+```
+
+Then install git-commit-llm:
 
 ```bash
 # Download and install
