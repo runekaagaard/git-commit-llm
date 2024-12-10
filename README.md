@@ -49,11 +49,12 @@ Available options:
 
 ## How it works
 
-1. Analyzes your staged changes
-2. Generates a commit message using an LLM
-3. Opens your editor to review/modify
-4. Creates commit on save, aborts on exit
-5. Optionally pushes changes
+1. Optionally stages all changes (--stage-all/-s)
+2. Optionally shows staged changes for review (--diff/-d)
+3. Generates a commit message using an LLM based on the staged diff and branch name
+4. Opens your editor to review/modify
+5. Creates commit on save, aborts on exit
+6. Optionally pushes changes (--push/-p)
 
 ## DWIM (Do What I Mean)
 
