@@ -3,13 +3,47 @@
 set -o pipefail
 
 # Define prompts
-SIMPLE_PROMPT="Write a single-line git commit message for this change on branch %s.
-Use imperative mood and maximum 50 characters."
 
-MAJOR_PROMPT="Write a detailed git commit message for this change on branch %s.
-First line: imperative summary (max 50 chars)
-Then blank line
-Then detailed explanation with line breaks at 72 chars"
+# Simple commit message prompt
+SIMPLE_PROMPT='Task: Generate a git commit message
+
+Requirements:
+- Single line only
+- Use imperative mood (e.g., "Add", "Fix", "Update")
+- Maximum 50 characters
+- Must accurately describe the changes
+
+Context:
+- Current branch: %s
+
+Response:
+- Format your response as a single line with no prefix or quotes.'
+
+# Detailed commit message prompt
+MAJOR_PROMPT='Task: Generate a detailed git commit message
+
+Requirements:
+1. First line (subject):
+   - Use imperative mood (e.g., "Add", "Fix", "Update")
+   - Maximum 50 characters
+   - Must summarize the change
+   - No period at the end
+
+2. Second line:
+   - Must be blank
+
+3. Remaining lines (body):
+   - Wrap text at 72 characters
+   - Explain what and why (not how)
+   - Include line breaks between paragraphs
+   - Use bullet points for multiple items
+   - Can use multiple paragraphs
+
+Context:
+- Current branch: %s
+
+Response:
+- Format your response starting directly with the subject line, no quotes or prefixes.'
 
 help_text() {
     cat << EOF
@@ -25,7 +59,6 @@ OPTIONS:
     -o, --model MODEL    Select LLM model (default: claude-3-sonnet-20240229)
     -p, --push          Push changes after committing
     -d, --diff      Display staged changes before generating commit message
-    --debug         Show what would be sent to LLM and exit
 
 DESCRIPTION:
     This script uses Claude AI to analyze your git changes and generate an appropriate
@@ -212,17 +245,16 @@ else
     PROMPT=$(printf "$SIMPLE_PROMPT" "$BRANCH_NAME")
 fi
 
-# Get the diff.
-DIFF=$(git diff --cached)
-
 if [ $DEBUG -eq 1 ]; then
-    echo "Would send to LLM:"
-    echo "==================="
-    echo "PROMPT: $PROMPT"
-    echo "-------------------"
-    echo "DIFF: $DIFF"
+    echo "LLM PROMPT"
+    echo "=========="
+    echo
+    echo "$PROMPT"
     exit 0
 fi
+
+# Get the diff.
+DIFF=$(git diff --cached)
 
 echo "Generating commit message using LLM (this may take a few seconds)..."
 if ! echo "$DIFF" | llm --model="$MODEL" "$PROMPT" > "$TEMP_FILE" 2>/dev/null; then
