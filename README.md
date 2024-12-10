@@ -1,38 +1,37 @@
 # git-commit-llm
 
-Generate git commit messages using Large Language Models to analyze your changes. Creates concise, consistent commit messages following git best practices.
+A command-line tool that generates git commit messages by analyzing staged changes using Large Language Models.
 
 ## Features
 
-- 🤖 AI-powered commit message generation based on your changes
-- 📝 Two message styles:
-  - Default: Concise single-line commits
-  - Major mode (--major): Detailed multi-line messages for substantial changes
-- 🛠️ Flexible workflow options:
-  - Preview changes with --diff before generating message
-  - Auto-stage all changes with --add-all
-  - Automatic push after commit with --push
-  - Custom LLM model selection with --model
-- ✨ Smart features:
-  - Branch context-aware messages
-  - Interactive editor review before committing
-  - Proper git conventions and formatting
+- Generates single-line commit messages by default
+- Optional detailed multi-line messages for major changes
+- Branch context awareness for better message relevance
+- Interactive message review in your editor before committing
 
-## How It Works
+## Options
 
-1. Analyzes staged changes using `git diff`
-2. Sends the diff to Claude AI with formatting instructions
-3. Shows you the changes first if --diff is enabled
-4. Opens your editor with the suggested message
-5. Creates the commit when you save
-6. Optionally pushes changes if --push is enabled
+- --major: Generate detailed multi-line commit messages
+- --diff: Show staged changes before generating message
+- --add-all: Stage all changes before commit
+- --push: Push changes after committing
+- --model: Select specific LLM model (default: claude-3-sonnet-20240229)
 
 ## Requirements
 
 - git
-- A text editor set in `$EDITOR`
+- Text editor (set in $EDITOR)
 - Python 3.7+
-- An API key for your chosen LLM provider
+- llm CLI tool with configured API key
+
+## Operation
+
+1. Analyzes staged changes with git diff
+2. Sends changes to LLM for analysis
+3. Displays changes if --diff is enabled
+4. Opens editor with generated message
+5. Creates commit on save, aborts on exit
+6. Pushes changes if --push is enabled
 
 ## Installation
 
