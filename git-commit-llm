@@ -25,6 +25,7 @@ OPTIONS:
     -o, --model MODEL    Select LLM model (default: claude-3-sonnet-20240229)
     -p, --push          Push changes after committing
     -d, --diff      Display staged changes before generating commit message
+    --debug         Show what would be sent to LLM and exit
 
 DESCRIPTION:
     This script uses Claude AI to analyze your git changes and generate an appropriate
@@ -96,6 +97,7 @@ MAJOR=0
 MODEL="claude-3-sonnet-20240229"
 PUSH=0
 SHOW_DIFF=0
+DEBUG=0
 
 # Parse short options first
 while getopts "hsmo:pd" opt; do
@@ -161,6 +163,10 @@ while [[ $# -gt 0 ]]; do
             SHOW_DIFF=1
             shift
             ;;
+        --debug)
+            DEBUG=1
+            shift
+            ;;
         *)
             error "Invalid argument: $1" 8
             ;;
@@ -207,8 +213,20 @@ else
     PROMPT=$(printf "$SIMPLE_PROMPT" "$BRANCH_NAME")
 fi
 
+# Get the diff
+DIFF=$(git diff --cached)
+
+if [ $DEBUG -eq 1 ]; then
+    echo "Would send to LLM:"
+    echo "==================="
+    echo "PROMPT: $PROMPT"
+    echo "-------------------"
+    echo "DIFF: $DIFF"
+    exit 0
+fi
+
 echo "Generating commit message using LLM (this may take a few seconds)..."
-if ! git diff --cached | llm --model="$MODEL" "$PROMPT" > "$TEMP_FILE" 2>/dev/null; then
+if ! echo "$DIFF" | llm --model="$MODEL" "$PROMPT" > "$TEMP_FILE" 2>/dev/null; then
     error "Failed to generate commit message using LLM" 3
 fi
 
