@@ -45,7 +45,6 @@ Available options:
 -o, --model MODEL   Select LLM model (default: claude-3-sonnet-20240229)
 -p, --push          Push changes after committing
 -d, --diff          Show staged changes first
--D                  Show what would be sent to LLM and exit
 ```
 
 ## How it works
