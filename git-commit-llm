@@ -96,21 +96,56 @@ MAJOR=0
 MODEL="claude-3-sonnet-20240229"
 PUSH=0
 SHOW_DIFF=0
-while [[ $# -gt 0 ]]; do
-    case $1 in
-        -h|--help)
+
+# Parse short options first
+while getopts "hsmo:pd" opt; do
+    case $opt in
+        h)
             help_text
             exit 0
             ;;
-        -s|--stage-all)
+        s)
+            ADD_ALL=1
+            ;;
+        m)
+            MAJOR=1
+            ;;
+        o)
+            MODEL="$OPTARG"
+            ;;
+        p)
+            PUSH=1
+            ;;
+        d)
+            SHOW_DIFF=1
+            ;;
+        \?)
+            # Skip invalid options - might be a long option
+            continue
+            ;;
+        :)
+            error "Option -$OPTARG requires an argument" 8
+            ;;
+    esac
+done
+shift $((OPTIND-1))
+
+# Then parse remaining arguments for long options
+while [[ $# -gt 0 ]]; do
+    case $1 in
+        --help)
+            help_text
+            exit 0
+            ;;
+        --stage-all)
             ADD_ALL=1
             shift
             ;;
-        -m|--major)
+        --major)
             MAJOR=1
             shift
             ;;
-        -o|--model)
+        --model)
             shift
             if [ -z "$1" ]; then
                 error "Model name required for --model option" 8
@@ -118,11 +153,11 @@ while [[ $# -gt 0 ]]; do
             MODEL="$1"
             shift
             ;;
-        -p|--push)
+        --push)
             PUSH=1
             shift
             ;;
-        -d|--diff)
+        --diff)
             SHOW_DIFF=1
             shift
             ;;
