@@ -53,12 +53,12 @@ USAGE:
     git-commit-llm [OPTIONS]
 
 OPTIONS:
-    -h, --help       Show this help message
-    -s, --stage-all  Stage all changes (including untracked files) before generating commit message
-    -m, --major      Generate a detailed multi-line commit message for substantial changes
+    -h, --help           Show this help message
+    -s, --stage-all      Stage all changes (including untracked files) before generating commit message
+    -m, --major          Generate a detailed multi-line commit message for substantial changes
     -o, --model MODEL    Select LLM model (default: claude-3-sonnet-20240229)
-    -p, --push          Push changes after committing
-    -d, --diff      Display staged changes before generating commit message
+    -p, --push           Push changes after committing
+    -d, --diff           Display staged changes before generating commit message
 
 DESCRIPTION:
     This script uses Claude AI to analyze your git changes and generate an appropriate
@@ -67,10 +67,10 @@ DESCRIPTION:
 
 PROMPTS:
     Default prompt:
-    "${SIMPLE_PROMPT}"
+$(echo "${SIMPLE_PROMPT}" | sed 's/^/        /')
 
     Major changes prompt (--major):
-    "${MAJOR_PROMPT}"
+$(echo "${MAJOR_PROMPT}" | sed 's/^/        /')
 
 WORKFLOW:
     1. Changes are analyzed and sent to Claude AI
