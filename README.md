@@ -4,25 +4,35 @@ Generate git commit messages using Large Language Models to analyze your changes
 
 ## Features
 
-- Generates appropriate commit messages by analyzing your changes
-- Default mode: single-line commits for most changes
-- Major mode (--major): detailed multi-line messages for substantial changes
-- Supports reviewing/editing before committing
-- Branch context-aware
-- Can stage all changes with --add-all
+- 🤖 AI-powered commit message generation based on your changes
+- 📝 Two message styles:
+  - Default: Concise single-line commits
+  - Major mode (--major): Detailed multi-line messages for substantial changes
+- 🛠️ Flexible workflow options:
+  - Preview changes with --diff before generating message
+  - Auto-stage all changes with --add-all
+  - Automatic push after commit with --push
+  - Custom LLM model selection with --model
+- ✨ Smart features:
+  - Branch context-aware messages
+  - Interactive editor review before committing
+  - Proper git conventions and formatting
 
 ## How It Works
 
 1. Analyzes staged changes using `git diff`
 2. Sends the diff to Claude AI with formatting instructions
-3. Opens your editor with the generated message
-4. Creates the commit if you save the message
+3. Shows you the changes first if --diff is enabled
+4. Opens your editor with the suggested message
+5. Creates the commit when you save
+6. Optionally pushes changes if --push is enabled
 
 ## Requirements
 
 - git
 - A text editor set in `$EDITOR`
 - Python 3.7+
+- An API key for your chosen LLM provider
 
 ## Installation
 
