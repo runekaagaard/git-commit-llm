@@ -55,6 +55,19 @@ Available options:
 4. Creates commit on save, aborts on exit
 5. Optionally pushes changes
 
+## DWIM (Do What I Mean)
+
+For the most common workflow of staging all changes, generating a commit message, and pushing, add this alias to your `.bashrc` or `.zshrc`:
+
+```bash
+alias gcl="git-commit-llm -sdp"
+```
+
+Now you can simply run `gcl` to:
+1. Stage all changes (-s)
+2. Generate a commit message
+3. Push after committing (-p)
+
 ## License
 
 Mozilla Public License Version 2.0
