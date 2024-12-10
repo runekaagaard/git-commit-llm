@@ -12,30 +12,18 @@ USAGE:
 OPTIONS:
     -h, --help      Show this help message
     -a, --add-all   Stage all changes (including untracked files) before generating commit message
-                    Similar to 'git add -A'
+    -m, --major     Generate a detailed multi-line commit message for substantial changes
 
 DESCRIPTION:
     This script uses Claude AI to analyze your git changes and generate an appropriate
-    commit message following standard Git commit message conventions.
+    commit message. By default it creates concise single-line messages. Use --major
+    for significant changes that require detailed explanation.
 
 WORKFLOW:
     1. Changes are analyzed and sent to Claude AI
     2. Generated commit message is saved to a temporary file
     3. Your \$EDITOR opens with the suggested message
-    4. If you save and exit, the commit is created
-    5. If you exit without saving (Ctrl+C), the commit is aborted
-
-PROMPT:
-    "Analyze this git diff and write a commit message following these rules:
-    1. First line: concise summary in imperative mood (max 50 chars)
-    2. If changes are minor, stop after the first line
-    3. If changes are substantial:
-       - Add a blank line
-       - Add detailed explanation with line breaks at 72 chars
-    4. Context: This change is on branch: [BRANCH_NAME]
-
-    Focus on the 'what' and 'why' rather than the 'how'. Break convention only if it 
-    significantly improves clarity."
+    4. Save the file to commit, exit without saving to abort
 
 EXIT CODES:
     0   Success - commit was created
@@ -49,28 +37,18 @@ EXIT CODES:
     8   Invalid command line arguments
     10  Unexpected error
 
-ERROR HANDLING:
-    - The script checks for a valid git repository before proceeding
-    - Verifies changes exist before attempting to generate a commit
-    - Validates \$EDITOR is set and executable
-    - Ensures the LLM tool is available and properly configured
-    - Handles API failures gracefully with informative error messages
-    - Cleans up temporary files even if the script fails
-    - Preserves git state if any step fails (no partial commits)
-
 EXAMPLES:
-    # Generate commit message for staged changes:
+    # Generate simple commit message for staged changes:
     git-commit-llm
 
-    # Stage all changes and generate commit message:
-    git-commit-llm --add-all
+    # Stage all changes and generate detailed commit message:
+    git-commit-llm --add-all --major
 
 REQUIREMENTS:
     - llm command-line tool
     - git
     - Active git repository
     - \$EDITOR environment variable set
-
 EOF
 }
 
@@ -95,6 +73,7 @@ fi
 
 # Parse arguments
 ADD_ALL=0
+MAJOR=0
 while [[ $# -gt 0 ]]; do
     case $1 in
         -h|--help)
@@ -103,6 +82,10 @@ while [[ $# -gt 0 ]]; do
             ;;
         -a|--add-all)
             ADD_ALL=1
+            shift
+            ;;
+        -m|--major)
+            MAJOR=1
             shift
             ;;
         *)
@@ -137,35 +120,19 @@ BRANCH_NAME=$(git symbolic-ref --short HEAD 2>/dev/null || echo "detached HEAD")
 # Create temporary file
 TEMP_FILE=$(mktemp /tmp/git-commit-llm.XXXXXX) || error "Failed to create temporary file" 7
 
-# Generate commit message using Claude
-PROMPT="Analyze this git diff and generate a git commit message.
-
-BY DEFAULT - USE THIS FORMAT:
-- Single line summary in imperative mood
-- Maximum 50 characters
-- Focus on what changed, not how
-- Examples: 
-  'Fix navigation bar alignment in header'
-  'Update user profile validation rules'
-  'Add password strength indicator'
-
-ONLY FOR MAJOR CHANGES use this format:
-(Multiple files changed AND significant architectural/behavioral changes)
-- First line: summary in imperative mood (max 50 chars)
-- Blank line
-- Detailed explanation with line breaks at 72 chars
-
-Context: This change is on branch: $BRANCH_NAME
-
-IMPORTANT: Default to single line unless changes are truly substantial"
+# Set prompt based on commit type
+if [ $MAJOR -eq 1 ]; then
+    PROMPT="Write a detailed git commit message for this change on branch $BRANCH_NAME.
+First line: imperative summary (max 50 chars)
+Then blank line
+Then detailed explanation with line breaks at 72 chars"
+else
+    PROMPT="Write a single-line git commit message for this change on branch $BRANCH_NAME.
+Use imperative mood and maximum 50 characters."
+fi
 
 if ! git diff --cached | llm --model=claude-3-5-sonnet-20241022 "$PROMPT" > "$TEMP_FILE" 2>/dev/null; then
     error "Failed to generate commit message using LLM" 3
-fi
-
-# Check if file is empty
-if [ ! -s "$TEMP_FILE" ]; then
-    error "LLM generated an empty commit message" 3
 fi
 
 # Get initial modification time
