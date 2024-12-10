@@ -63,10 +63,7 @@ For the most common workflow of staging all changes, generating a commit message
 alias gcl="git-commit-llm -sdp"
 ```
 
-Now you can simply run `gcl` to:
-1. Stage all changes (-s)
-2. Generate a commit message
-3. Push after committing (-p)
+Now you can simply run `gcl` to stage all changes, see the diff, generate a commit message and push after committing.
 
 ## License
 
