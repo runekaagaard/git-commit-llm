@@ -138,30 +138,26 @@ BRANCH_NAME=$(git symbolic-ref --short HEAD 2>/dev/null || echo "detached HEAD")
 TEMP_FILE=$(mktemp /tmp/git-commit-llm.XXXXXX) || error "Failed to create temporary file" 7
 
 # Generate commit message using Claude
-PROMPT="Analyze this git diff and generate a git commit message. Use one of these two formats:
+PROMPT="Analyze this git diff and generate a git commit message.
 
-FOR TRIVIAL CHANGES (e.g. typo fixes, small refactors, simple updates):
-- Single line summary only
-- Use imperative mood
+BY DEFAULT - USE THIS FORMAT:
+- Single line summary in imperative mood
 - Maximum 50 characters
-- Example: 'Fix typo in login error message'
+- Focus on what changed, not how
+- Examples: 
+  'Fix navigation bar alignment in header'
+  'Update user profile validation rules'
+  'Add password strength indicator'
 
-FOR SUBSTANTIAL CHANGES (e.g. new features, breaking changes, complex refactors):
+ONLY FOR MAJOR CHANGES use this format:
+(Multiple files changed AND significant architectural/behavioral changes)
 - First line: summary in imperative mood (max 50 chars)
 - Blank line
 - Detailed explanation with line breaks at 72 chars
-- Example:
-  Add user authentication system
-  
-  Implement JWT-based authentication with the following features:
-  - Email/password login endpoint
-  - Token refresh mechanism
-  - Password reset flow
-  - Rate limiting on auth endpoints
 
 Context: This change is on branch: $BRANCH_NAME
 
-IMPORTANT: Choose format based on change complexity - prefer single line for simple changes."
+IMPORTANT: Default to single line unless changes are truly substantial"
 
 if ! git diff --cached | llm --model=claude-3-5-sonnet-20241022 "$PROMPT" > "$TEMP_FILE" 2>/dev/null; then
     error "Failed to generate commit message using LLM" 3
@@ -172,8 +168,19 @@ if [ ! -s "$TEMP_FILE" ]; then
     error "LLM generated an empty commit message" 3
 fi
 
+# Get initial modification time
+INITIAL_MTIME=$(stat -f %m "$TEMP_FILE" 2>/dev/null || stat -c %Y "$TEMP_FILE")
+
 # Open editor for user to review/modify
 $EDITOR "$TEMP_FILE" || error "Editor closed with an error" 4
+
+# Get new modification time
+NEW_MTIME=$(stat -f %m "$TEMP_FILE" 2>/dev/null || stat -c %Y "$TEMP_FILE")
+
+# Check if file was saved
+if [ "$INITIAL_MTIME" = "$NEW_MTIME" ]; then
+    error "Commit message not saved in editor, aborting" 4
+fi
 
 # Check if file is empty or only contains comments
 if [ ! -s "$TEMP_FILE" ] || ! grep -q '^[^#]' "$TEMP_FILE"; then
