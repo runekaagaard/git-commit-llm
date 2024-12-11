@@ -267,14 +267,14 @@ if ! llm --model="$MODEL" "$PROMPT" > "$TEMP_FILE" 2>/dev/null; then
     error "Failed to generate commit message using LLM" 3
 fi
 
-# Get initial modification time with nanosecond precision
-INITIAL_MTIME=$(stat -f %m.%N "$TEMP_FILE" 2>/dev/null || stat -c %Y.%N "$TEMP_FILE")
+# Get initial modification time
+INITIAL_MTIME=$(LANG=C stat -f %m "$TEMP_FILE" >/dev/null 2>&1 || LANG=C stat --format=%Y "$TEMP_FILE" 2>/dev/null)
 
 # Open editor for user to review/modify
 $EDITOR "$TEMP_FILE" || error "Editor closed with an error" 4
 
-# Get new modification time with nanosecond precision
-NEW_MTIME=$(stat -f %m.%N "$TEMP_FILE" 2>/dev/null || stat -c %Y.%N "$TEMP_FILE")
+# Get new modification time
+NEW_MTIME=$(LANG=C stat -f %m "$TEMP_FILE" >/dev/null 2>&1 || LANG=C stat --format=%Y "$TEMP_FILE" 2>/dev/null)
 
 # Check if file was saved (using nanosecond precision)
 if [ "$INITIAL_MTIME" = "$NEW_MTIME" ]; then
